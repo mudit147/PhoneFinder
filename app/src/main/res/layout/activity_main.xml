@@ -24,4 +24,12 @@
         android:id="@+id/zValue"
         android:layout_marginTop="30sp"
         android:layout_below= "@+id/yValue"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/notification"
+        android:onClick="sendOnChannel1"
+        android:text="Send on Channel 1" />
+
 </RelativeLayout>
