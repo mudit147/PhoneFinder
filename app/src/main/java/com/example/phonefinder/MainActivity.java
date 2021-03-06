@@ -80,10 +80,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         hasCameraFlash = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
 
-        if (isDeviceLocked(getApplicationContext())) {
-            Log.v(TAG, "locked");
-            setAlarm(System.currentTimeMillis() + 10000);
-        }
+//        if (isDeviceLocked(getApplicationContext())) {
+//            Log.v(TAG, "locked");
+//            setAlarm(System.currentTimeMillis() + 10000);
+//        }
     }
 
     //accelerometer reading changes
@@ -113,7 +113,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         final NotificationHelper notificationHelper = new NotificationHelper(getApplicationContext());
         // check if the device is locked since a certain amount of time and is lying straight on the table
 
+
         if (isDeviceLocked(getApplicationContext()) && isPhoneFlat) {
+            setAlarm(System.currentTimeMillis() + 10000);
             Handler handler = new Handler(Looper.myLooper());
             handler.postDelayed(new Runnable() {
                 @Override
