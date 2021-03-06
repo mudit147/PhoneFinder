@@ -39,6 +39,7 @@ import android.os.Vibrator;
 import android.util.Log;
 
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,13 +58,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final String TAG = "MainActivity";
 
     Sensor accelerometer;
-    public Vibrator vibrator;
     Ringtone ringtone;
     Uri uri;
 
     private final int CAMERA_REQUEST_CODE = 2;
     boolean hasCameraFlash = false;
-
+    private SensorManager sensorManager;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -73,24 +73,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         setContentView(R.layout.activity_main);
 
-        SensorManager sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
         accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
-//        notificationManagerCompat = NotificationManagerCompat.from(this);
-
         hasCameraFlash = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
-        uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-        ringtone = RingtoneManager.getRingtone(this, uri);
-        vibrator = (Vibrator) this.getSystemService(Context.VIBRATOR_SERVICE);
 
-        if (isDeviceLocked(getApplicationContext())){
+        if (isDeviceLocked(getApplicationContext())) {
             Log.v(TAG, "locked");
-            setAlarm(System.currentTimeMillis() + 5000);
-            flashLightOn();
-//            vibrateThePhone();
-//            vibrator.vibrate(5000);
+            setAlarm(System.currentTimeMillis() + 10000);
         }
     }
 
@@ -116,73 +108,40 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         if (inclination < 25 || inclination > 155) {
             isPhoneFlat = true;
-//            Log.d(TAG, "FLAT");
-            vibrateThePhone();
-
-        } else {
-//            Log.d(TAG, "UNFLAT");
         }
 
         final NotificationHelper notificationHelper = new NotificationHelper(getApplicationContext());
         // check if the device is locked since a certain amount of time and is lying straight on the table
 
-//        if(isDeviceLocked(getApplicationContext()) && isPhoneFlat){
-//        int countNotification =0;
-//            long startTime = System.currentTimeMillis()/1000;
-//                while ((isDeviceLocked(getApplicationContext()) && isPhoneFlat) || countNotification == 3){
-//                    long finishTime = System.currentTimeMillis()/1000;
-//                    long timeElapsed = finishTime - startTime;
-////                    Log.d(TAG, Long.toString(timeElapsed));
-//                    long timeElapsedInMinutes = timeElapsed/5;//to be changed to timeElapsed/60
-//                    int notificationCounter = 0;
-//
-//                    //more than 10 seconds
-//                    if (timeElapsedInMinutes == 2 || timeElapsedInMinutes > 2){
-//                        //push notification
-//
-//                        //TODO: Generate notifications
-//                        notificationHelper.sendHighPriorityNotification("Help me!", "");
-//                        Log.d(TAG, "Hey there!");
-//                        countNotification++;
-//                    }
-//                }
-//
-//            Log.d(TAG, "locked" );
-//            //Start timer
-//        }
-//
-//        else{
-//            Log.d(TAG, "unlocked");
-//        }
+        if (isDeviceLocked(getApplicationContext()) && isPhoneFlat) {
+            Handler handler = new Handler(Looper.myLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    flashLightOn();
+                    vibrateThePhone();
+                }
+            }, 10000);
+        }
 
-//        long startTime = 0;
-//        if (isDeviceLocked(getApplicationContext()) && isPhoneFlat) {
-////            startTime = System.currentTimeMillis();
-//            Handler handler = new Handler(Looper.myLooper());
-//            handler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    Log.v(TAG, "hello");
-////                    notificationHelper.sendHighPriorityNotification("Help me!", "");
-//                    Toast.makeText(MainActivity.this, "help!", Toast.LENGTH_SHORT).show();
-//                    flashLightOn();
-////                    vibrator.vibrate(50);
-//                    vibrateThePhone();
-//                }
-//            }, 10000);
-//        }
-//
-//        else {
-//            flashLightOff();
-//
-//        }
-//        if (isDeviceLocked(getApplicationContext()) && isPhoneFlat){
-//            setAlarm(System.currentTimeMillis() + 5000);
-//        }
-
-
+        else{
+            flashLightOff();
+        }
 
     }
+
+//    @Override
+//    protected void onResume() {
+//        sensorManager.registerListener(this, accelerometer, sensorManager.SENSOR_DELAY_NORMAL);
+//        super.onResume();
+//    }
+//
+//    @Override
+//    protected void onPause() {
+//        sensorManager.unregisterListener(this);
+//        super.onPause();
+//    }
+
 
     private void setAlarm(long timeInMillis) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -193,6 +152,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Toast.makeText(this, "Alarm is set", Toast.LENGTH_SHORT).show();
     }
 
+    protected void AlarmStop() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, MyAlarm.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0 , intent, 0);
+        super.onStop();
+        if (alarmManager != null) {
+            alarmManager.cancel(pendingIntent);
+        }
+    }
     //checking if the device is locked
     public static boolean isDeviceLocked(Context context) {
         boolean isLocked = false;
@@ -294,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (Build.VERSION.SDK_INT >= 26) {
             ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(VibrationEffect.createOneShot(30000, VibrationEffect.DEFAULT_AMPLITUDE));
         } else {
-            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(150);
+            ((Vibrator) getSystemService(VIBRATOR_SERVICE)).vibrate(50);
         }
     }
 
