@@ -24,6 +24,8 @@
         <receiver android:name=".MyAlarm"
             android:enabled="true"
             android:exported="true" />
+        <receiver android:name=".NotificationHelper"/>
+
     </application>
 
 </manifest>

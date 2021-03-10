@@ -1,65 +1,33 @@
 package com.example.phonefinder;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.Build;
+import android.media.RingtoneManager;
+import android.net.Uri;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import java.util.Random;
+public class NotificationHelper extends BroadcastReceiver {
 
-public class NotificationHelper extends ContextWrapper {
 
-    private static final String TAG = "NotificationHelper";
-
-    public NotificationHelper(Context base) {
-        super(base);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            createChannels();
-        }
-    }
-
-    private String CHANNEL_NAME = "High priority channel";
-    private String CHANNEL_ID = "com.example.notifications" + CHANNEL_NAME;
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private void createChannels() {
-        NotificationChannel notificationChannel = new NotificationChannel(CHANNEL_ID, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH);
-        notificationChannel.enableLights(true);
-        notificationChannel.enableVibration(true);
-        notificationChannel.setDescription("this is the description of the channel.");
-        notificationChannel.setLightColor(Color.RED);
-        notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PUBLIC);
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.createNotificationChannel(notificationChannel);
-    }
-
-    public void sendHighPriorityNotification(String title, String body) {
-
-        Intent intent = new Intent(String.valueOf(this));
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 267, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-//                .setContentTitle(title)
-//                .setContentText(body)
+    @Override
+    public void onReceive(Context context, Intent intent) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "NotifySeniors")
                 .setSmallIcon(R.drawable.ic_notification_alert)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setStyle(new NotificationCompat.BigTextStyle().setSummaryText("summary").setBigContentTitle(title).bigText(body))
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
-                .build();
+                .setContentTitle("Hey are you there?")
+                .setContentText("Click on the notification if you see it")
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-        NotificationManagerCompat.from(this).notify(new Random().nextInt(), notification);
+        Uri soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        builder.setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 });
+        builder.setLights(Color.RED, 3000, 3000);
+        builder.setSound(soundUri);
 
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(context);
+        notificationManagerCompat.notify(200, builder.build());
 
     }
-
 }

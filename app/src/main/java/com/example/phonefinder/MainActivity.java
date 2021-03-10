@@ -3,67 +3,60 @@ package com.example.phonefinder;
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.KeyguardManager;
-import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import android.media.Ringtone;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.PowerManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 
-import android.os.SystemClock;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
 
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Timer;
-import java.util.TimerTask;
 
 //TODO: Convert the application to a background service
-//TODO: Generate notifications and see if the notifications are missed
-//TODO: if 5 notifications are missed, send alarm broadcasts: vibrate phone, flash screen/flashlight, ring the phone
+//TODO: Generate notifications after ever hour 3 times, if the device has been locked for an hour
+//TODO: if 3 notifications are missed, send alarm broadcasts:
+// vibrate phone,
+// flash screen
+// flashlight
+// ring the phone
 
-public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
+//public class MainActivity extends AppCompatActivity implements SensorEventListener {
+ public class MainActivity extends AppCompatActivity
+{
     private NotificationManagerCompat notificationManagerCompat;
 
     private static final String TAG = "MainActivity";
 
-    Sensor accelerometer;
     Ringtone ringtone;
     Uri uri;
 
     private final int CAMERA_REQUEST_CODE = 2;
     boolean hasCameraFlash = false;
-    private SensorManager sensorManager;
+
+    private int lastInteractionTime;
+    private Boolean isScreenOff = false;
 
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
@@ -73,79 +66,90 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         setContentView(R.layout.activity_main);
 
-        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-
-        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        sensorManager.registerListener(MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-
         hasCameraFlash = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+//        MyAlarm myAlarm = new MyAlarm(this);
+        createNotificationChannel();
 
-//        if (isDeviceLocked(getApplicationContext())) {
-//            Log.v(TAG, "locked");
-//            setAlarm(System.currentTimeMillis() + 10000);
-//        }
-    }
+        Intent intent = new Intent(MainActivity.this, NotificationHelper.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
 
-    //accelerometer reading changes
-    public void onAccuracyChanged(Sensor sensor, int i) {
-    }
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public void onSensorChanged(SensorEvent sensorEvent) {
+        int notificationCounter= 0;
+        long alarmTime=0;
 
-        double[] axisReadings = convertFloatsToDoubles(sensorEvent.values.clone());
-        double axisReadingNorm = Math.sqrt(axisReadings[0] * axisReadings[0] +
-                axisReadings[1] * axisReadings[1] +
-                axisReadings[2] * axisReadings[2]);
+        while (isDeviceLocked(getApplicationContext()) && notificationCounter < 3) {
+            long currentTime = System.currentTimeMillis();
+            long notificationOneTime = currentTime + 5000;
+            long notificationTwoTime = notificationOneTime + 5000;
+            long notificationThreeTime = notificationTwoTime + 5000;
+            alarmTime = notificationThreeTime + 5000;
 
-        axisReadings[0] /= axisReadingNorm;
-        axisReadings[1] /= axisReadingNorm;
-        axisReadings[2] /= axisReadingNorm;
+//            setAlarm(System.currentTimeMillis() + 5000);
+            vibrateThePhone();
+            Log.v(TAG, "locked");
+            Log.v(TAG, "counter0 =" + notificationCounter);
 
-        int inclination = (int) Math.round(Math.toDegrees(Math.acos(axisReadings[2])));
+            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationOneTime, pendingIntent);
+            notificationCounter++;
+            Log.v(TAG, "counter1 =" + notificationCounter + ", time:" + notificationOneTime);
 
-        boolean isPhoneFlat = false;
+            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationTwoTime, pendingIntent);
+            notificationCounter++;
+            Log.v(TAG, "counter2 =" + notificationCounter + ", time:" + notificationTwoTime);
 
-        if (inclination < 25 || inclination > 155) {
-            isPhoneFlat = true;
+            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationThreeTime, pendingIntent);
+            notificationCounter++;
+            Log.v(TAG, "counter3 =" + notificationCounter + ", time:" + notificationThreeTime);
         }
 
-        final NotificationHelper notificationHelper = new NotificationHelper(getApplicationContext());
-        // check if the device is locked since a certain amount of time and is lying straight on the table
-
-        ///////////////////////////////
-        //THIS SECTION IS PROBLEMATIC//
-        ///////////////////////////////
-        if (isDeviceLocked(getApplicationContext()) && isPhoneFlat) {
-            setAlarm(System.currentTimeMillis() + 10000);
-            Handler handler = new Handler(Looper.myLooper());
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    flashLightOn();
-                    vibrateThePhone();
-                }
-            }, 10000);
+        if(!isDeviceLocked(getApplicationContext())){
+            Log.v(TAG, "counter_unlocked =" + notificationCounter);
+            notificationCounter = 0;
+            AlarmStop();
         }
-
-        else{
-            flashLightOff();
+        if(notificationCounter == 3 && System.currentTimeMillis() == alarmTime) {
+            Log.v(TAG, "alarm time:" + alarmTime);
+            Log.v(TAG, "counter_alarm =" + notificationCounter);
+            setAlarm(System.currentTimeMillis() + 5000);
         }
 
     }
-
-//    @Override
-//    protected void onResume() {
-//        sensorManager.registerListener(this, accelerometer, sensorManager.SENSOR_DELAY_NORMAL);
-//        super.onResume();
-//    }
+//    private class ScreenReceiver extends BroadcastReceiver {
 //
-//    @Override
-//    protected void onPause() {
-//        sensorManager.unregisterListener(this);
-//        super.onPause();
+//        protected ScreenReceiver() {
+//            // register receiver that handles screen on and screen off logic
+//            IntentFilter filter = new IntentFilter();
+//            filter.addAction(Intent.ACTION_SCREEN_ON);
+//            filter.addAction(Intent.ACTION_SCREEN_OFF);
+//            registerReceiver(this, filter);
+//        }
+//
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+//                isScreenOff = true;
+//            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+//                isScreenOff = false;
+//            }
+//        }
 //    }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void createNotificationChannel() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "PhoneFinderChannel";
+            String description = "Channel for locating phone";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("NotifySeniors", name, importance);
+            channel.setDescription(description);
+
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+
+    }
 
     private void setAlarm(long timeInMillis) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
