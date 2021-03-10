@@ -30,6 +30,7 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.util.Log;
 
+import android.view.View;
 import android.widget.Toast;
 
 
@@ -45,95 +46,77 @@ import android.widget.Toast;
 //public class MainActivity extends AppCompatActivity implements SensorEventListener {
  public class MainActivity extends AppCompatActivity
 {
-    private NotificationManagerCompat notificationManagerCompat;
-
     private static final String TAG = "MainActivity";
 
-    Ringtone ringtone;
-    Uri uri;
 
     private final int CAMERA_REQUEST_CODE = 2;
     boolean hasCameraFlash = false;
-
-    private int lastInteractionTime;
-    private Boolean isScreenOff = false;
-
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
-        hasCameraFlash = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
-//        MyAlarm myAlarm = new MyAlarm(this);
-        createNotificationChannel();
-
-        Intent intent = new Intent(MainActivity.this, NotificationHelper.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-
-        int notificationCounter= 0;
-        long alarmTime=0;
-
-        while (isDeviceLocked(getApplicationContext()) && notificationCounter < 3) {
-            long currentTime = System.currentTimeMillis();
-            long notificationOneTime = currentTime + 5000;
-            long notificationTwoTime = notificationOneTime + 5000;
-            long notificationThreeTime = notificationTwoTime + 5000;
-            alarmTime = notificationThreeTime + 5000;
-
+//        hasCameraFlash = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
+////        MyAlarm myAlarm = new MyAlarm(this);
+//        createNotificationChannel();
+//
+//        Intent intent = new Intent(MainActivity.this, NotificationHelper.class);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
+//
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+//
+//        int notificationCounter= 0;
+//        long alarmTime=0;
+//
+//        while (isDeviceLocked(getApplicationContext()) && notificationCounter < 3) {
+//            long currentTime = System.currentTimeMillis();
+//            long notificationOneTime = currentTime + 5000;
+////            long notificationTwoTime = notificationOneTime + 5000;
+////            long notificationThreeTime = notificationTwoTime + 5000;
+//            alarmTime = notificationOneTime + 5000;
+//
+////            setAlarm(System.currentTimeMillis() + 5000);
+//            vibrateThePhone();
+//            Log.v(TAG, "locked");
+//            Log.v(TAG, "counter0 =" + notificationCounter);
+//
+//            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationOneTime, pendingIntent);
+//            notificationCounter++;
+//            Log.v(TAG, "counter1 =" + notificationCounter + ", time:" + notificationOneTime);
+//
+////            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationTwoTime, pendingIntent);
+////            notificationCounter++;
+////            Log.v(TAG, "counter2 =" + notificationCounter + ", time:" + notificationTwoTime);
+////
+////            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationThreeTime, pendingIntent);
+////            notificationCounter++;
+////            Log.v(TAG, "counter3 =" + notificationCounter + ", time:" + notificationThreeTime);
+//        }
+//
+//        if(!isDeviceLocked(getApplicationContext())){
+//            Log.v(TAG, "counter_unlocked =" + notificationCounter);
+//            notificationCounter = 0;
+//            AlarmStop();
+//        }
+//        if(notificationCounter == 3 && System.currentTimeMillis() == alarmTime) {
+//            Log.v(TAG, "alarm time:" + alarmTime);
+//            Log.v(TAG, "counter_alarm =" + notificationCounter);
 //            setAlarm(System.currentTimeMillis() + 5000);
-            vibrateThePhone();
-            Log.v(TAG, "locked");
-            Log.v(TAG, "counter0 =" + notificationCounter);
-
-            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationOneTime, pendingIntent);
-            notificationCounter++;
-            Log.v(TAG, "counter1 =" + notificationCounter + ", time:" + notificationOneTime);
-
-            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationTwoTime, pendingIntent);
-            notificationCounter++;
-            Log.v(TAG, "counter2 =" + notificationCounter + ", time:" + notificationTwoTime);
-
-            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationThreeTime, pendingIntent);
-            notificationCounter++;
-            Log.v(TAG, "counter3 =" + notificationCounter + ", time:" + notificationThreeTime);
-        }
-
-        if(!isDeviceLocked(getApplicationContext())){
-            Log.v(TAG, "counter_unlocked =" + notificationCounter);
-            notificationCounter = 0;
-            AlarmStop();
-        }
-        if(notificationCounter == 3 && System.currentTimeMillis() == alarmTime) {
-            Log.v(TAG, "alarm time:" + alarmTime);
-            Log.v(TAG, "counter_alarm =" + notificationCounter);
-            setAlarm(System.currentTimeMillis() + 5000);
-        }
+//        }
 
     }
-//    private class ScreenReceiver extends BroadcastReceiver {
-//
-//        protected ScreenReceiver() {
-//            // register receiver that handles screen on and screen off logic
-//            IntentFilter filter = new IntentFilter();
-//            filter.addAction(Intent.ACTION_SCREEN_ON);
-//            filter.addAction(Intent.ACTION_SCREEN_OFF);
-//            registerReceiver(this, filter);
-//        }
-//
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
-//                isScreenOff = true;
-//            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
-//                isScreenOff = false;
-//            }
-//        }
-//    }
+
+    public void startService (View view) {
+        Intent intent = new Intent(this, PhoneFinderService.class);
+        startService(intent);
+    }
+
+    public void stopService (View view) {
+        Intent intent = new Intent(this, PhoneFinderService.class);
+        stopService(intent);
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void createNotificationChannel() {
@@ -160,7 +143,7 @@ import android.widget.Toast;
         Toast.makeText(this, "Alarm is set", Toast.LENGTH_SHORT).show();
     }
 
-    protected void AlarmStop() {
+    private void AlarmStop() {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, MyAlarm.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0 , intent, 0);

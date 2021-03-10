@@ -25,7 +25,8 @@
             android:enabled="true"
             android:exported="true" />
         <receiver android:name=".NotificationHelper"/>
-
+        <service android:name=".PhoneFinderService"
+            android:exported="false"></service>
     </application>
 
 </manifest>
