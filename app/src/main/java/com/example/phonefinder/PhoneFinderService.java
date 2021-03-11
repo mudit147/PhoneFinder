@@ -18,8 +18,6 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import java.security.Provider;
-
 
 public class PhoneFinderService extends Service {
     private static final String TAG = "MainActivity";
@@ -36,48 +34,73 @@ public class PhoneFinderService extends Service {
         createNotificationChannel();
 
         Intent intent_1 = new Intent(this, NotificationHelper.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent_1, 0);
+        PendingIntent pendingIntent_1 = PendingIntent.getBroadcast(this, 0, intent_1, 0);
 
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        AlarmManager alarmManager_1 = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-        int notificationCounter= 0;
-        long alarmTime=0;
+//        int notificationCounter= 0;
+//        long alarmTime=0;
 
-        while (isDeviceLocked(getApplicationContext()) && notificationCounter < 3) {
-            Log.v(TAG, "sup bro?");
-            long currentTime = System.currentTimeMillis();
-            long notificationOneTime = currentTime + 5000;
-            long notificationTwoTime = notificationOneTime + 5000;
-            long notificationThreeTime = notificationTwoTime + 5000;
-            alarmTime = notificationOneTime + 5000;
+        Intent intent_2 = new Intent(this, PhoneLockedBroadcast.class);
+        PendingIntent pendingIntent_2 = PendingIntent.getBroadcast(this, 0, intent_2, 0);
+        AlarmManager alarmManager_2 = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-//            setAlarm(System.currentTimeMillis() + 5000);
-//            vibrateThePhone();
-            Log.v(TAG, "locked");
-            Log.v(TAG, "counter0 =" + notificationCounter);
-
-            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationOneTime, pendingIntent);
-            notificationCounter++;
-            Log.v(TAG, "counter1 =" + notificationCounter + ", time:" + notificationOneTime);
-
-            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationTwoTime, pendingIntent);
-            notificationCounter++;
-            Log.v(TAG, "counter2 =" + notificationCounter + ", time:" + notificationTwoTime);
-
-            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationThreeTime, pendingIntent);
-            notificationCounter++;
-            Log.v(TAG, "counter3 =" + notificationCounter + ", time:" + notificationThreeTime);
+        alarmManager_2.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pendingIntent_2);
+//
+        if(MainActivity.isDeviceLockedFinal){
+            alarmManager_1.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000, pendingIntent_1);
         }
 
-        if(!isDeviceLocked(getApplicationContext())){
-            Log.v(TAG, "counter_unlocked =" + notificationCounter);
-            notificationCounter = 0;
+        else{
+            alarmManager_1.cancel(pendingIntent_1);
         }
-        if(notificationCounter == 3 && System.currentTimeMillis() == alarmTime) {
-            Log.v(TAG, "alarm time:" + alarmTime);
-            Log.v(TAG, "counter_alarm =" + notificationCounter);
+
+        if(MainActivity.notificationCounterFinal == 3) {
+            Log.v(TAG, "alarm time");
             setAlarm(System.currentTimeMillis() + 5000);
         }
+
+//       if (isDeviceLocked(getApplicationContext()){
+//           while(notificationCounter < 4){
+//            Log.v(TAG, "sup bro?");
+//            long currentTime = System.currentTimeMillis();
+//            long notificationOneTime = currentTime + 5000;
+//            long notificationTwoTime = notificationOneTime + 5000;
+//            long notificationThreeTime = notificationTwoTime + 5000;
+//            alarmTime = notificationOneTime + 5000;
+//
+////            setAlarm(System.currentTimeMillis() + 5000);
+////            vibrateThePhone();
+//            Log.v(TAG, "locked");
+//            Log.v(TAG, "counter0 =" + notificationCounter);
+//
+//            alarmManager_1.set(AlarmManager.RTC_WAKEUP, notificationOneTime, pendingIntent_1);
+//            notificationCounter++;
+//            Log.v(TAG, "counter1 =" + notificationCounter + ", time:" + notificationOneTime);
+//
+//            alarmManager_1.set(AlarmManager.RTC_WAKEUP, notificationTwoTime, pendingIntent_!);
+//            notificationCounter++;
+//            Log.v(TAG, "counter2 =" + notificationCounter + ", time:" + notificationTwoTime);
+//
+//            alarmManager_1.set(AlarmManager.RTC_WAKEUP, notificationThreeTime, pendingIntent_!);
+//            notificationCounter++;
+//            Log.v(TAG, "counter3 =" + notificationCounter + ", time:" + notificationThreeTime);
+//
+////            alarmManager_1.setRepeating(AlarmManager.RTC_WAKEUP, notificationOneTime, 5000, pendingIntent_!);
+//           }
+//       }
+
+
+
+//        if(!isDeviceLocked(getApplicationContext())){
+//            Log.v(TAG, "counter_unlocked =" + notificationCounter);
+//            notificationCounter = 0;
+//        }
+//        if(notificationCounter == 3 && System.currentTimeMillis() == alarmTime) {
+//            Log.v(TAG, "alarm time:" + alarmTime);
+//            Log.v(TAG, "counter_alarm =" + notificationCounter);
+//            setAlarm(System.currentTimeMillis() + 5000);
+//        }
         return START_STICKY;
     }
 

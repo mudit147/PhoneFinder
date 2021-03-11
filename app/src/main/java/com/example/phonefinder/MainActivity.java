@@ -47,7 +47,8 @@ import android.widget.Toast;
  public class MainActivity extends AppCompatActivity
 {
     private static final String TAG = "MainActivity";
-
+    public static Boolean isDeviceLockedFinal = false;
+    public static int notificationCounterFinal = 0;
 
     private final int CAMERA_REQUEST_CODE = 2;
     boolean hasCameraFlash = false;
@@ -111,6 +112,7 @@ import android.widget.Toast;
     public void startService (View view) {
         Intent intent = new Intent(this, PhoneFinderService.class);
         startService(intent);
+
     }
 
     public void stopService (View view) {
