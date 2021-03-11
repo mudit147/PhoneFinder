@@ -1,28 +1,41 @@
 package com.example.phonefinder;
 
+import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.KeyguardManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.Vibrator;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import static com.example.phonefinder.MainActivity.isDeviceLocked;
 
 
 public class PhoneFinderService extends Service {
     private static final String TAG = "MainActivity";
     private final int CAMERA_REQUEST_CODE = 2;
     boolean hasCameraFlash = false;
+
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -31,82 +44,48 @@ public class PhoneFinderService extends Service {
 //        setAlarm(System.currentTimeMillis() + 2000);
         hasCameraFlash = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
 //        MyAlarm myAlarm = new MyAlarm(this);
-        createNotificationChannel();
+        createNotificationChannel("PhoneFinderChannel", "NotifySeniors");
+        createNotificationChannel("PhoneFinderChannel_2", "NotifySeniors_2");
+        createNotificationChannel("PhoneFinderChannel_3", "NotifySeniors_3");
 
         Intent intent_1 = new Intent(this, NotificationHelper.class);
-        PendingIntent pendingIntent_1 = PendingIntent.getBroadcast(this, 0, intent_1, 0);
+        PendingIntent pendingIntent_1 = PendingIntent.getBroadcast(this, 0, intent_1, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager_1 = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-//        int notificationCounter= 0;
+        int notificationCounter= 0;
 //        long alarmTime=0;
 
-        Intent intent_2 = new Intent(this, PhoneLockedBroadcast.class);
-        PendingIntent pendingIntent_2 = PendingIntent.getBroadcast(this, 0, intent_2, 0);
+        Intent intent_2 = new Intent(this, NotificationHelper2.class);
+        PendingIntent pendingIntent_2 = PendingIntent.getBroadcast(this, 0, intent_2, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager_2 = (AlarmManager) getSystemService(ALARM_SERVICE);
 
-        alarmManager_2.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pendingIntent_2);
-//
-        if(MainActivity.isDeviceLockedFinal){
-            alarmManager_1.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000, pendingIntent_1);
-        }
-
-        else{
-            alarmManager_1.cancel(pendingIntent_1);
-        }
-
-        if(MainActivity.notificationCounterFinal == 3) {
-            Log.v(TAG, "alarm time");
-            setAlarm(System.currentTimeMillis() + 5000);
-        }
-
-//       if (isDeviceLocked(getApplicationContext()){
-//           while(notificationCounter < 4){
-//            Log.v(TAG, "sup bro?");
-//            long currentTime = System.currentTimeMillis();
-//            long notificationOneTime = currentTime + 5000;
-//            long notificationTwoTime = notificationOneTime + 5000;
-//            long notificationThreeTime = notificationTwoTime + 5000;
-//            alarmTime = notificationOneTime + 5000;
-//
-////            setAlarm(System.currentTimeMillis() + 5000);
-////            vibrateThePhone();
-//            Log.v(TAG, "locked");
-//            Log.v(TAG, "counter0 =" + notificationCounter);
-//
-//            alarmManager_1.set(AlarmManager.RTC_WAKEUP, notificationOneTime, pendingIntent_1);
-//            notificationCounter++;
-//            Log.v(TAG, "counter1 =" + notificationCounter + ", time:" + notificationOneTime);
-//
-//            alarmManager_1.set(AlarmManager.RTC_WAKEUP, notificationTwoTime, pendingIntent_!);
-//            notificationCounter++;
-//            Log.v(TAG, "counter2 =" + notificationCounter + ", time:" + notificationTwoTime);
-//
-//            alarmManager_1.set(AlarmManager.RTC_WAKEUP, notificationThreeTime, pendingIntent_!);
-//            notificationCounter++;
-//            Log.v(TAG, "counter3 =" + notificationCounter + ", time:" + notificationThreeTime);
-//
-////            alarmManager_1.setRepeating(AlarmManager.RTC_WAKEUP, notificationOneTime, 5000, pendingIntent_!);
-//           }
-//       }
+        Intent intent_3 = new Intent(this, NotificationHelper3.class);
+        PendingIntent pendingIntent_3 = PendingIntent.getBroadcast(this, 0, intent_3, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager_3 = (AlarmManager) getSystemService(ALARM_SERVICE);
 
 
+        long preTime = System.currentTimeMillis();
+        long notificationTime1 = preTime + 10*1000;
+        long notificationTime2 = preTime + 20*1000;
+        long notificationTime3 = preTime + 30*1000;
+        long alarmTime = preTime + 60*1000;
 
-//        if(!isDeviceLocked(getApplicationContext())){
-//            Log.v(TAG, "counter_unlocked =" + notificationCounter);
-//            notificationCounter = 0;
-//        }
-//        if(notificationCounter == 3 && System.currentTimeMillis() == alarmTime) {
-//            Log.v(TAG, "alarm time:" + alarmTime);
-//            Log.v(TAG, "counter_alarm =" + notificationCounter);
-//            setAlarm(System.currentTimeMillis() + 5000);
-//        }
+        alarmManager_1.set(AlarmManager.RTC_WAKEUP, notificationTime1, pendingIntent_1);
+
+        alarmManager_2.set(AlarmManager.RTC_WAKEUP, notificationTime2, pendingIntent_2);
+
+        alarmManager_3.set(AlarmManager.RTC_WAKEUP, notificationTime3, pendingIntent_3);
+
+        setAlarm(alarmTime);
+
         return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         Toast.makeText(PhoneFinderService.this, "Service Destroyed", Toast.LENGTH_LONG).show();
+        AlarmStop();
         super.onDestroy();
     }
 
@@ -116,26 +95,6 @@ public class PhoneFinderService extends Service {
         return null;
     }
 
-    public static boolean isDeviceLocked(Context context) {
-        boolean isLocked = false;
-
-        KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
-        boolean inKeyguardRestrictedInputMode = keyguardManager.isKeyguardLocked();
-
-        if (inKeyguardRestrictedInputMode) {
-            isLocked = true;
-
-        } else {
-
-            PowerManager powerManager = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
-                isLocked = !powerManager.isInteractive();
-            } else {
-                isLocked = !powerManager.isScreenOn();
-            }
-        }
-        return isLocked;
-    }
 
     private void setAlarm(long timeInMillis) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
@@ -146,15 +105,24 @@ public class PhoneFinderService extends Service {
         Toast.makeText(this, "Alarm is set", Toast.LENGTH_SHORT).show();
     }
 
+    private void AlarmStop() {
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(this, MyAlarm.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0 , intent, 0);
+
+        if (alarmManager != null) {
+            alarmManager.cancel(pendingIntent);
+        }
+    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void createNotificationChannel() {
+    private void createNotificationChannel(String notifyName, String notifyId) {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "PhoneFinderChannel";
+            CharSequence name = notifyName;
             String description = "Channel for locating phone";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel("NotifySeniors", name, importance);
+            NotificationChannel channel = new NotificationChannel(notifyId, name, importance);
             channel.setDescription(description);
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
@@ -162,4 +130,5 @@ public class PhoneFinderService extends Service {
         }
 
     }
+
 }

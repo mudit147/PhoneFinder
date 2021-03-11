@@ -2,7 +2,9 @@ package com.example.phonefinder;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
+import android.app.Application;
 import android.app.KeyguardManager;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -44,16 +46,23 @@ import android.widget.Toast;
 
 
 //public class MainActivity extends AppCompatActivity implements SensorEventListener {
+ @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
  public class MainActivity extends AppCompatActivity
 {
     private static final String TAG = "MainActivity";
     public static Boolean isDeviceLockedFinal = false;
     public static int notificationCounterFinal = 0;
 
+    private static final int LED_NOTIFICATION_ID= 0; //arbitrary constant
+
+
     private final int CAMERA_REQUEST_CODE = 2;
     boolean hasCameraFlash = false;
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+
+    public static boolean isAlarmFlash = false;
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,6 +149,15 @@ import android.widget.Toast;
         return output;
     }
 
+    public void RedFlashLight() {
+        NotificationManager nm = (NotificationManager) getSystemService( NOTIFICATION_SERVICE);
+        Notification notif = new Notification();
+        notif.ledARGB = 0xFFff0000;
+        notif.flags = Notification.FLAG_SHOW_LIGHTS;
+        notif.ledOnMS = 100;
+        notif.ledOffMS = 100;
+        nm.notify(LED_NOTIFICATION_ID, notif);
+    }
 
     @SuppressLint("NewApi")
     private void flashLight()
@@ -148,7 +166,7 @@ import android.widget.Toast;
 
     @SuppressLint("NewApi")
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    private void flashLightOn()
+    public void flashLightOn()
     {
         CameraManager cameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
 
