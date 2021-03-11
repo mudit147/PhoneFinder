@@ -49,7 +49,7 @@ public class PhoneFinderService extends Service {
         createNotificationChannel("PhoneFinderChannel_3", "NotifySeniors_3");
 
         Intent intent_1 = new Intent(this, NotificationHelper.class);
-        PendingIntent pendingIntent_1 = PendingIntent.getBroadcast(this, 0, intent_1, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent_1 = PendingIntent.getBroadcast(this, 1, intent_1, PendingIntent.FLAG_UPDATE_CURRENT);
 
         AlarmManager alarmManager_1 = (AlarmManager) getSystemService(ALARM_SERVICE);
 
@@ -57,18 +57,18 @@ public class PhoneFinderService extends Service {
 //        long alarmTime=0;
 
         Intent intent_2 = new Intent(this, NotificationHelper2.class);
-        PendingIntent pendingIntent_2 = PendingIntent.getBroadcast(this, 0, intent_2, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent_2 = PendingIntent.getBroadcast(this, 2, intent_2, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager_2 = (AlarmManager) getSystemService(ALARM_SERVICE);
 
         Intent intent_3 = new Intent(this, NotificationHelper3.class);
-        PendingIntent pendingIntent_3 = PendingIntent.getBroadcast(this, 0, intent_3, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent_3 = PendingIntent.getBroadcast(this, 3, intent_3, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager_3 = (AlarmManager) getSystemService(ALARM_SERVICE);
 
 
         long preTime = System.currentTimeMillis();
         long notificationTime1 = preTime + 10*1000;
         long notificationTime2 = preTime + 20*1000;
-        long notificationTime3 = preTime + 30*1000;
+        long notificationTime3 = preTime + 35*1000;
         long alarmTime = preTime + 60*1000;
 
         alarmManager_1.set(AlarmManager.RTC_WAKEUP, notificationTime1, pendingIntent_1);
@@ -85,7 +85,6 @@ public class PhoneFinderService extends Service {
     @Override
     public void onDestroy() {
         Toast.makeText(PhoneFinderService.this, "Service Destroyed", Toast.LENGTH_LONG).show();
-        AlarmStop();
         super.onDestroy();
     }
 
@@ -109,10 +108,7 @@ public class PhoneFinderService extends Service {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(this, MyAlarm.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0 , intent, 0);
-
-        if (alarmManager != null) {
-            alarmManager.cancel(pendingIntent);
-        }
+        alarmManager.cancel(pendingIntent);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
