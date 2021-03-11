@@ -53,5 +53,14 @@ public class MyAlarm extends BroadcastReceiver {
         Uri ring = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         Ringtone r = RingtoneManager.getRingtone(context, ring);
         r.play();
+
+        CameraManager cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+
+        try {
+            String cameraId = cameraManager.getCameraIdList()[0];
+            cameraManager.setTorchMode(cameraId, true);
+        } catch (CameraAccessException e) {
+        }
+
     }
 }
