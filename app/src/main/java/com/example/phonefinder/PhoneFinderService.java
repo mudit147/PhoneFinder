@@ -50,8 +50,8 @@ public class PhoneFinderService extends Service {
 
         Intent intent_1 = new Intent(this, NotificationHelper.class);
         PendingIntent pendingIntent_1 = PendingIntent.getBroadcast(this, 1, intent_1, PendingIntent.FLAG_UPDATE_CURRENT);
-
         AlarmManager alarmManager_1 = (AlarmManager) getSystemService(ALARM_SERVICE);
+
 
         int notificationCounter= 0;
 //        long alarmTime=0;

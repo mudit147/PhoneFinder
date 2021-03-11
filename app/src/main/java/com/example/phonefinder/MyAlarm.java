@@ -29,11 +29,12 @@ import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import static android.content.Context.NOTIFICATION_SERVICE;
+
 //class extending the Broadcast Receiver
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class MyAlarm extends BroadcastReceiver {
     //the method will be fired when the alarm is triggered
-
 //    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
@@ -46,7 +47,7 @@ public class MyAlarm extends BroadcastReceiver {
                 .setContentText("")
                 .setSmallIcon(R.mipmap.ic_launcher).build();
 
-        NotificationManager notificationManager = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager)context.getSystemService(NOTIFICATION_SERVICE);
         notification.flags|=Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(0, notification);
 

@@ -35,16 +35,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-
-//TODO: Convert the application to a background service
-//TODO: Generate notifications after ever hour 3 times, if the device has been locked for an hour
-//TODO: if 3 notifications are missed, send alarm broadcasts:
-// vibrate phone,
-// flash screen
-// flashlight
-// ring the phone
-
-
 //public class MainActivity extends AppCompatActivity implements SensorEventListener {
  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
  public class MainActivity extends AppCompatActivity
