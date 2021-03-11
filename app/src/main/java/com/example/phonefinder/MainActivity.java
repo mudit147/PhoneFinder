@@ -58,55 +58,6 @@ import android.widget.Toast;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-//        hasCameraFlash = getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH);
-////        MyAlarm myAlarm = new MyAlarm(this);
-//        createNotificationChannel();
-//
-//        Intent intent = new Intent(MainActivity.this, NotificationHelper.class);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(MainActivity.this, 0, intent, 0);
-//
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-//
-//        int notificationCounter= 0;
-//        long alarmTime=0;
-//
-//        while (isDeviceLocked(getApplicationContext()) && notificationCounter < 3) {
-//            long currentTime = System.currentTimeMillis();
-//            long notificationOneTime = currentTime + 5000;
-////            long notificationTwoTime = notificationOneTime + 5000;
-////            long notificationThreeTime = notificationTwoTime + 5000;
-//            alarmTime = notificationOneTime + 5000;
-//
-////            setAlarm(System.currentTimeMillis() + 5000);
-//            vibrateThePhone();
-//            Log.v(TAG, "locked");
-//            Log.v(TAG, "counter0 =" + notificationCounter);
-//
-//            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationOneTime, pendingIntent);
-//            notificationCounter++;
-//            Log.v(TAG, "counter1 =" + notificationCounter + ", time:" + notificationOneTime);
-//
-////            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationTwoTime, pendingIntent);
-////            notificationCounter++;
-////            Log.v(TAG, "counter2 =" + notificationCounter + ", time:" + notificationTwoTime);
-////
-////            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationThreeTime, pendingIntent);
-////            notificationCounter++;
-////            Log.v(TAG, "counter3 =" + notificationCounter + ", time:" + notificationThreeTime);
-//        }
-//
-//        if(!isDeviceLocked(getApplicationContext())){
-//            Log.v(TAG, "counter_unlocked =" + notificationCounter);
-//            notificationCounter = 0;
-//            AlarmStop();
-//        }
-//        if(notificationCounter == 3 && System.currentTimeMillis() == alarmTime) {
-//            Log.v(TAG, "alarm time:" + alarmTime);
-//            Log.v(TAG, "counter_alarm =" + notificationCounter);
-//            setAlarm(System.currentTimeMillis() + 5000);
-//        }
-
     }
 
     public void startService (View view) {
