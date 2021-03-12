@@ -9,8 +9,6 @@ import android.content.Intent;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import java.util.Random;
-
 public class NotificationHelper3 extends BroadcastReceiver {
 
     @Override

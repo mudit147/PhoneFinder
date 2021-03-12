@@ -2,46 +2,35 @@ package com.example.phonefinder;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
-import android.app.Application;
 import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
-import android.media.Ringtone;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
-import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
-
-import android.os.VibrationEffect;
-import android.os.Vibrator;
-import android.util.Log;
-
-import android.view.View;
-import android.widget.Toast;
 
 //public class MainActivity extends AppCompatActivity implements SensorEventListener {
  @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
  public class MainActivity extends AppCompatActivity
 {
     private static final String TAG = "MainActivity";
-    public static Boolean isDeviceLockedFinal = false;
-    public static int notificationCounterFinal = 0;
 
     private static final int LED_NOTIFICATION_ID= 0; //arbitrary constant
 
